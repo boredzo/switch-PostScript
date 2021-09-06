@@ -27,8 +27,11 @@
 		% Now we can iteratively compare the comparand to each of the cases.
 		% Note that if we encounter a case whose example is null, its proc must be stashed as default_case_proc and skipped to continue comparing to other non-default cases.
 		{
+			% If we haven't found anything, bail out. Make sure we take the one remaining instance of the comparand with us.
+			comparand_depth 1 le { pop exit } if
 			% Swap proc and example so we can test the example.
 			exch
+
 			% Is the example null?
 			dup null eq {
 				% If it is, pop the example (which we don't need for any further comparisons) and stash the proc.
@@ -49,9 +52,6 @@
 					pop
 					/comparand_depth comparand_depth 2 sub def
 				} ifelse
-
-				% If we haven't found anything, bail out. Make sure we take the one remaining instance of the comparand with us.
-				comparand_depth 1 le { pop exit } if
 			} ifelse
 		} loop
 		matched_anything not {
