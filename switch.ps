@@ -1,0 +1,107 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%BoundingBox: 0 0 1920 1080
+%%EndComments
+
+% switch-case library by boredzo
+% Copyright 2021 Peter Hosey. See enclosed LICENSE.txt for terms.
+
+% value case0 proc0 ... -> switch -> -
+% Compare value in turn to each of a series of values. Upon a match, execute the corresponding proc.
+% If an example value is null, that is the default case and a value that matches no other case will match that one.
+/switch {
+	3 dict begin
+		/default_case {} def
+		/value_depth 1 def
+		/fetch_value { value_depth -1 roll dup value_depth 1 add +1 roll } def
+
+		% First, find where the value actually is (determine the correct value_depth).
+		{
+			fetch_value
+			type /arraytype ne {
+				exit
+			} {
+				/value_depth value_depth 2 add def
+			} ifelse
+		} loop
+		% Now we can iteratively compare the value to each of the cases.
+		% Note that if we encounter a case that is null, that must be stashed as default_case and skipped to continue comparing to other non-default cases.
+		{
+			% Swap proc and example so we can test the example.
+			exch
+			dup
+			% Is the example null?
+			null eq {
+				pop
+				/default_case exch def
+			} {
+				% Not null. See if it's the value we're looking for.
+				fetch_value eq {
+					% Yes! Exec the proc and break out of the loop.
+					exec
+					exit
+				} {
+					% Nope. Pop the proc and keep looking
+					pop
+					/value_depth value_depth 2 sub def
+				} ifelse
+			} ifelse
+		} loop
+		default_case
+	end
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Test cases. You don't need these if you're copying the switch proc into your own program.
+
+(Test 1) =
+1
+1 { (one) = }
+2 { (two) = }
+3 { (three) = }
+switch
+(Test 1 complete)
+
+
+(Test 2) =
+2
+1 { (one) = }
+2 { (two) = }
+3 { (three) = }
+switch
+(Test 2 complete)
+
+(Test 3) =
+3
+1 { (one) = }
+2 { (two) = }
+3 { (three) = }
+switch
+(Test 3 complete)
+
+(Test 4) =
+4
+1 { (one) = }
+2 { (two) = }
+3 { (three) = }
+switch
+(Test 4 complete)
+
+(Test 5 (default)) =
+4
+1 { (one) = }
+2 { (two) = }
+3 { (three) = }
+null { (other) = }
+switch
+(Test 5 complete)
+
+(Test 6 (default only)) =
+4
+null { (other) = }
+switch
+(Test 6 complete)
+
+(Test 7 (no cases)) =
+4
+switch
+(Test 7 complete)
