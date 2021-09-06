@@ -5,26 +5,26 @@
 % switch-case library by boredzo
 % Copyright 2021 Peter Hosey. See enclosed LICENSE.txt for terms.
 
-% value case0 proc0 ... -> switch -> -
-% Compare value in turn to each of a series of values. Upon a match, execute the corresponding proc.
-% If an example value is null, that is the default case and a value that matches no other case will match that one.
+% comparand case0 proc0 ... -> switch -> -
+% Compare comparand in turn to each of a series of example (case) values. Upon a match, execute the corresponding proc.
+% If a case value is null, that is the default case and a comparand that matches no other case will match that one.
 /switch {
 	3 dict begin
-		/default_case {} def
-		/value_depth 1 def
-		/fetch_value { value_depth -1 roll dup value_depth 1 add +1 roll } def
+		/default_case_proc {} def
+		/comparand_depth 1 def
+		/fetch_comparand { comparand_depth -1 roll dup comparand_depth 1 add +1 roll } def
 
-		% First, find where the value actually is (determine the correct value_depth).
+		% First, find where the comparand actually is (determine the correct comparand_depth).
 		{
-			fetch_value
+			fetch_comparand
 			type /arraytype ne {
 				exit
 			} {
-				/value_depth value_depth 2 add def
+				/comparand_depth comparand_depth 2 add def
 			} ifelse
 		} loop
-		% Now we can iteratively compare the value to each of the cases.
-		% Note that if we encounter a case that is null, that must be stashed as default_case and skipped to continue comparing to other non-default cases.
+		% Now we can iteratively compare the comparand to each of the cases.
+		% Note that if we encounter a case whose example is null, its proc must be stashed as default_case_proc and skipped to continue comparing to other non-default cases.
 		{
 			% Swap proc and example so we can test the example.
 			exch
@@ -32,21 +32,21 @@
 			% Is the example null?
 			null eq {
 				pop
-				/default_case exch def
+				/default_case_proc exch def
 			} {
-				% Not null. See if it's the value we're looking for.
-				fetch_value eq {
+				% Not null. See if it's the comparand we're looking for.
+				fetch_comparand eq {
 					% Yes! Exec the proc and break out of the loop.
 					exec
 					exit
 				} {
 					% Nope. Pop the proc and keep looking
 					pop
-					/value_depth value_depth 2 sub def
+					/comparand_depth comparand_depth 2 sub def
 				} ifelse
 			} ifelse
 		} loop
-		default_case
+		default_case_proc
 	end
 } def
 
