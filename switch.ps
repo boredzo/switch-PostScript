@@ -42,6 +42,8 @@
 					% Yes! Exec the proc and break out of the loop.
 					/matched_anything true def
 					exec
+					% Clean up any arguments of ours that are still on the stack.
+					comparand_depth 2 sub { pop } repeat
 					exit
 				} {
 					% Nope. Pop the proc and keep looking
