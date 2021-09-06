@@ -35,6 +35,7 @@
 				% If it is, pop the example (which we don't need for any further comparisons) and stash the proc.
 				pop
 				/default_case_proc exch def
+				/comparand_depth comparand_depth 2 sub def
 			} {
 				% Not null. See if it's the comparand we're looking for.
 				fetch_comparand eq {
@@ -47,6 +48,9 @@
 					pop
 					/comparand_depth comparand_depth 2 sub def
 				} ifelse
+
+				% If we haven't found anything, bail out. Make sure we take the one remaining instance of the comparand with us.
+				comparand_depth 1 le { pop exit } if
 			} ifelse
 		} loop
 		matched_anything not {
