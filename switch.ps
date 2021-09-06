@@ -13,6 +13,7 @@
 		/default_case_proc {} def
 		/comparand_depth 1 def
 		/fetch_comparand { comparand_depth -1 roll dup comparand_depth 1 add +1 roll } def
+		/matched_anything false def
 
 		% First, find where the comparand actually is (determine the correct comparand_depth).
 		{
@@ -37,6 +38,7 @@
 				% Not null. See if it's the comparand we're looking for.
 				fetch_comparand eq {
 					% Yes! Exec the proc and break out of the loop.
+					/matched_anything true def
 					exec
 					exit
 				} {
@@ -46,7 +48,9 @@
 				} ifelse
 			} ifelse
 		} loop
-		default_case_proc
+		matched_anything not {
+			default_case_proc
+		} if
 	end
 } def
 
